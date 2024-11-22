@@ -47,7 +47,7 @@ exports.signup = async (req, res) => {
 exports.login = async (req, res) => {
     try {
         const {email, password} = req.body;
-
+        
         // Validation
         if(!email || !password) {
             return res.status(400).json({message: 'All fields are required!'});
@@ -55,13 +55,13 @@ exports.login = async (req, res) => {
 
         // Check if user exists
         const user = await UserSchema.findOne({email});
-        if(!user) {
+        if (!user) {
             return res.status(400).json({message: 'Invalid credentials'});
         }
 
         // Check password
         const isMatch = await bcrypt.compare(password, user.password);
-        if(!isMatch) {
+        if (!isMatch) {
             return res.status(400).json({message: 'Invalid credentials'});
         }
 

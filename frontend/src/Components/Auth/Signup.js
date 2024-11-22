@@ -1,17 +1,38 @@
-import React, { useState } from 'react'
-import styled from 'styled-components'
-import { Link } from 'react-router-dom'
+import React, { useState } from 'react';
+import styled from 'styled-components';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 function Signup() {
-    const [username, setUsername] = useState('')
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
+    const [username, setUsername] = useState('');
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [error, setError] = useState('');
+    const navigate = useNavigate();
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await axios.post('http://localhost:5000/api/v1/auth/signup', {
+                username,
+                email,
+                password
+            });
+            if (response.data.token) {
+                localStorage.setItem('token', response.data.token);
+                navigate('/login');
+            }
+        } catch (err) {
+            setError(err.response?.data?.message || 'Signup failed');
+        }
+    };
 
     return (
         <SignupStyled>
             <div className="auth-container">
                 <h2>Sign Up</h2>
-                <form>
+                {error && <div className="error-message">{error}</div>}
+                <form onSubmit={handleSubmit}>
                     <div className="input-control">
                         <input 
                             type="text" 
@@ -68,6 +89,15 @@ const SignupStyled = styled.div`
         color: var(--primary-color);
         margin-bottom: 2rem;
         font-size: 1.8rem;
+    }
+
+    .error-message {
+        color: red;
+        text-align: center;
+        margin-bottom: 1rem;
+        padding: 0.5rem;
+        border-radius: 8px;
+        background-color: rgba(255, 0, 0, 0.1);
     }
 
     form {
@@ -138,4 +168,4 @@ const SignupStyled = styled.div`
     }
 `;
 
-export default Signup
+export default Signup;
