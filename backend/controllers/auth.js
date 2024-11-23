@@ -80,3 +80,44 @@ exports.login = async (req, res) => {
         res.status(500).json({message: 'Server Error'});
     }
 };
+
+exports.getUser = async (req, res) => {
+    try {
+        // Get user from token (provided by auth middleware)
+        const user = req.user;
+        if (!user) {
+            return res.status(401).json({ message: 'Not authenticated' });
+        }
+        
+        // Return user data (excluding password)
+        res.status(200).json({
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
+
+// Add this function alongside existing exports
+exports.getUser = async (req, res) => {
+    try {
+        const user = req.user;
+        if (!user) {
+            return res.status(401).json({ message: 'Not authenticated' });
+        }
+        
+        res.status(200).json({
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Server Error' });
+    }
+};
