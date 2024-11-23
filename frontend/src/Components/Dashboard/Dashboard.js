@@ -6,12 +6,35 @@ import { InnerLayout } from '../../styles/Layouts';
 import Chart from '../Chart/Chart';
 
 function Dashboard() {
-    const {totalExpenses,incomes, expenses, totalIncome, totalBalance, getIncomes, getExpenses } = useGlobalContext()
+    const {
+        totalExpenses,
+        incomes, 
+        expenses, 
+        totalIncome, 
+        totalBalance, 
+        getIncomes, 
+        getExpenses,
+        token // Add token from global context
+    } = useGlobalContext()
 
     useEffect(() => {
-        getIncomes()
-        getExpenses()
-    }, [])
+        // Only fetch data when token is available
+        if (token) {
+            getIncomes()
+            getExpenses()
+        }
+    }, [token, getIncomes, getExpenses]) // Add dependencies
+
+    // Show loading state if no token
+    if (!token) {
+        return (
+            <DashboardStyled>
+                <InnerLayout>
+                    <h1>Loading...</h1>
+                </InnerLayout>
+            </DashboardStyled>
+        )
+    }
 
     return (
         <DashboardStyled>

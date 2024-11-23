@@ -15,33 +15,65 @@ export const GlobalProvider = ({children}) => {
     const [error, setError] = useState(null)
     const [user, setUser] = useState(null)
     const [token, setToken] = useState(localStorage.getItem('token'))
+    const [isLoading, setIsLoading] = useState(false)
+
+    // Effect to set up authentication token
+    useEffect(() => {
+        if (token) {
+            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+            fetchUserData()
+        } else {
+            delete axios.defaults.headers.common['Authorization']
+        }
+    }, [token])
 
     // Income functions
     const addIncome = async (income) => {
+        setIsLoading(true)
         try {
             const response = await axios.post('add-income', income)
-            getIncomes()
+            await getIncomes()
+            setError(null)
             return response.data
         } catch (err) {
             setError(err.response?.data?.message || 'Error adding income')
+            if (err.response?.status === 401) {
+                logout()
+            }
+        } finally {
+            setIsLoading(false)
         }
     }
 
     const getIncomes = async () => {
+        setIsLoading(true)
         try {
             const response = await axios.get('get-incomes')
             setIncomes(response.data)
+            setError(null)
         } catch (err) {
             setError(err.response?.data?.message || 'Error fetching incomes')
+            if (err.response?.status === 401) {
+                logout()
+            }
+        } finally {
+            setIsLoading(false)
         }
     }
 
     const deleteIncome = async (id) => {
+        setIsLoading(true)
         try {
             await axios.delete(`delete-income/${id}`)
-            getIncomes()
+            await getIncomes()
+            setError(null)
         } catch (err) {
             setError(err.response?.data?.message || 'Error deleting income')
+            if (err.response?.status === 401) {
+                logout()
+            }
+        } finally {
+            setIsLoading(false)
         }
     }
 
@@ -51,30 +83,51 @@ export const GlobalProvider = ({children}) => {
 
     // Expense functions
     const addExpense = async (expense) => {
+        setIsLoading(true)
         try {
             const response = await axios.post('add-expense', expense)
-            getExpenses()
+            await getExpenses()
+            setError(null)
             return response.data
         } catch (err) {
             setError(err.response?.data?.message || 'Error adding expense')
+            if (err.response?.status === 401) {
+                logout()
+            }
+        } finally {
+            setIsLoading(false)
         }
     }
 
     const getExpenses = async () => {
+        setIsLoading(true)
         try {
             const response = await axios.get('get-expenses')
             setExpenses(response.data)
+            setError(null)
         } catch (err) {
             setError(err.response?.data?.message || 'Error fetching expenses')
+            if (err.response?.status === 401) {
+                logout()
+            }
+        } finally {
+            setIsLoading(false)
         }
     }
 
     const deleteExpense = async (id) => {
+        setIsLoading(true)
         try {
             await axios.delete(`delete-expense/${id}`)
-            getExpenses()
+            await getExpenses()
+            setError(null)
         } catch (err) {
             setError(err.response?.data?.message || 'Error deleting expense')
+            if (err.response?.status === 401) {
+                logout()
+            }
+        } finally {
+            setIsLoading(false)
         }
     }
 
@@ -94,26 +147,31 @@ export const GlobalProvider = ({children}) => {
 
     // Authentication functions
     const login = async (email, password) => {
+        setIsLoading(true)
         try {
             const response = await axios.post('auth/login', {
                 email,
                 password
             })
             
-            const { token, user } = response.data
+            const { token: newToken, user: userData } = response.data
             
-            localStorage.setItem('token', token)
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+            localStorage.setItem('token', newToken)
+            axios.defaults.headers.common['Authorization'] = `Bearer ${newToken}`
             
-            setToken(token)
-            setUser(user)
+            setToken(newToken)
+            setUser(userData)
+            setError(null)
             
             return { success: true }
         } catch (error) {
+            setError(error.response?.data?.message || 'Login failed')
             return {
                 success: false,
                 error: error.response?.data?.message || 'Login failed'
             }
+        } finally {
+            setIsLoading(false)
         }
     }
 
@@ -122,24 +180,24 @@ export const GlobalProvider = ({children}) => {
         delete axios.defaults.headers.common['Authorization']
         setToken(null)
         setUser(null)
+        setIncomes([])
+        setExpenses([])
+        setError(null)
     }
 
     const fetchUserData = async () => {
+        setIsLoading(true)
         try {
             const response = await axios.get('auth/user')
             setUser(response.data.user)
+            setError(null)
         } catch (error) {
+            setError(error.response?.data?.message || 'Error fetching user data')
             logout()
+        } finally {
+            setIsLoading(false)
         }
     }
-
-    // Effect to set up authentication token
-    useEffect(() => {
-        if (token) {
-            axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
-            fetchUserData()
-        }
-    }, [token])
 
     return (
         <GlobalContext.Provider value={{
@@ -160,7 +218,8 @@ export const GlobalProvider = ({children}) => {
             user,
             login,
             logout,
-            token
+            token,
+            isLoading
         }}>
             {children}
         </GlobalContext.Provider>
