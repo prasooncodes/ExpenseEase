@@ -1,3 +1,4 @@
+// Signup.js
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { Link, useNavigate } from 'react-router-dom';
@@ -30,36 +31,42 @@ function Signup() {
     return (
         <SignupStyled>
             <div className="auth-container">
-                <h2>Sign Up</h2>
+                <h2>Create Account</h2>
                 {error && <div className="error-message">{error}</div>}
                 <form onSubmit={handleSubmit}>
                     <div className="input-control">
+                        <label>Username</label>
                         <input 
                             type="text" 
-                            placeholder="Username"
+                            placeholder="Choose a username"
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
+                            required
                         />
                     </div>
                     <div className="input-control">
+                        <label>Email</label>
                         <input 
                             type="email" 
-                            placeholder="Email"
+                            placeholder="Enter your email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
+                            required
                         />
                     </div>
                     <div className="input-control">
+                        <label>Password</label>
                         <input 
                             type="password" 
-                            placeholder="Password"
+                            placeholder="Create a password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
+                            required
                         />
                     </div>
                     <button type="submit">Sign Up</button>
                 </form>
-                <div className="login-link">
+                <div className="auth-footer">
                     Already have an account? <Link to="/login">Login</Link>
                 </div>
             </div>
@@ -69,93 +76,95 @@ function Signup() {
 
 const SignupStyled = styled.div`
     height: 100vh;
+    background: linear-gradient(120deg, #f6f7ff 0%, #e9ebff 100%);
     display: flex;
-    align-items: center;
     justify-content: center;
-    background: rgba(252, 246, 249, 0.78);
-    
+    align-items: center;
+
     .auth-container {
         background: white;
-        border: 3px solid #FFFFFF;
-        backdrop-filter: blur(4.5px);
-        border-radius: 32px;
-        padding: 2rem;
-        width: 360px;
-        box-shadow: 0 1px 15px rgba(0, 0, 0, 0.1);
-    }
-
-    h2 {
-        text-align: center;
-        color: var(--primary-color);
-        margin-bottom: 2rem;
-        font-size: 1.8rem;
-    }
-
-    .error-message {
-        color: red;
-        text-align: center;
-        margin-bottom: 1rem;
-        padding: 0.5rem;
-        border-radius: 8px;
-        background-color: rgba(255, 0, 0, 0.1);
-    }
-
-    form {
-        display: flex;
-        flex-direction: column;
-        gap: 1.5rem;
-    }
-
-    .input-control {
-        input {
-            width: 100%;
-            padding: 0.8rem;
-            border: 2px solid #fff;
-            border-radius: 8px;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            background: rgba(252, 246, 249, 0.78);
-            outline: none;
-            
-            &:focus {
-                border-color: var(--primary-color);
-            }
-
-            &::placeholder {
-                color: rgba(34, 34, 96, 0.4);
-            }
-        }
-    }
-
-    button {
-        padding: 0.8rem;
-        border: none;
-        background: var(--primary-color);
-        color: white;
-        border-radius: 8px;
-        font-size: 1.1rem;
-        cursor: pointer;
-        transition: all 0.3s ease;
+        border-radius: 20px;
+        padding: 3rem 4rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        width: 400px;
         
-        &:hover {
-            background: rgba(34, 34, 96, 0.8);
-            transform: translateY(-2px);
-        }
-    }
-
-    .login-link {
-        text-align: center;
-        margin-top: 1.5rem;
-        color: rgba(34, 34, 96, 0.6);
-        
-        a {
+        h2 {
+            text-align: center;
+            margin-bottom: 2rem;
             color: var(--primary-color);
-            text-decoration: none;
-            font-weight: 600;
-            margin-left: 0.5rem;
+            font-size: 2rem;
+        }
+
+        .error-message {
+            background: #fff2f2;
+            color: #ff4444;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        form {
+            .input-control {
+                margin-bottom: 1.5rem;
+                
+                label {
+                    display: block;
+                    margin-bottom: 0.5rem;
+                    color: var(--primary-color);
+                    font-weight: 500;
+                }
+
+                input {
+                    width: 100%;
+                    padding: 1rem;
+                    border: 2px solid #eee;
+                    border-radius: 10px;
+                    font-size: 1rem;
+                    transition: all 0.3s ease;
+
+                    &:focus {
+                        border-color: var(--primary-color);
+                        outline: none;
+                        box-shadow: 0 0 0 2px rgba(34, 34, 96, 0.1);
+                    }
+                }
+            }
+
+            button {
+                width: 100%;
+                padding: 1rem;
+                background: var(--primary-color);
+                border: none;
+                border-radius: 10px;
+                color: white;
+                font-size: 1.1rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+
+                &:hover {
+                    background: #1a1a4f;
+                    transform: translateY(-2px);
+                }
+            }
+        }
+
+        .auth-footer {
+            margin-top: 2rem;
+            text-align: center;
+            color: #666;
             
-            &:hover {
-                text-decoration: underline;
+            a {
+                color: var(--primary-color);
+                text-decoration: none;
+                font-weight: 600;
+                margin-left: 0.5rem;
+                
+                &:hover {
+                    text-decoration: underline;
+                }
             }
         }
     }
@@ -163,7 +172,7 @@ const SignupStyled = styled.div`
     @media (max-width: 500px) {
         .auth-container {
             width: 90%;
-            margin: 0 1rem;
+            padding: 2rem;
         }
     }
 `;
