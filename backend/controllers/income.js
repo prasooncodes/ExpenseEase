@@ -1,15 +1,16 @@
-const IncomeSchema= require("../models/IncomeModel")
-
+const IncomeSchema = require("../models/IncomeModel")
 
 exports.addIncome = async (req, res) => {
-    const {title, amount, category, description, date}  = req.body
+    const {title, amount, category, description, date} = req.body
+    const userId = req.user._id  // Get the user ID from authenticated request
 
     const income = IncomeSchema({
         title,
         amount,
         category,
         description,
-        date
+        date,
+        user: userId  // Associate the income with the user
     })
 
     try {
@@ -31,7 +32,9 @@ exports.addIncome = async (req, res) => {
 
 exports.getIncomes = async (req, res) =>{
     try {
-        const incomes = await IncomeSchema.find().sort({createdAt: -1})
+        const userId = req.user._id  // Get the user ID from authenticated request
+        // Only fetch incomes for the specific user
+        const incomes = await IncomeSchema.find({ user: userId }).sort({createdAt: -1})
         res.status(200).json(incomes)
     } catch (error) {
         res.status(500).json({message: 'Server Error'})
@@ -40,11 +43,19 @@ exports.getIncomes = async (req, res) =>{
 
 exports.deleteIncome = async (req, res) =>{
     const {id} = req.params;
-    IncomeSchema.findByIdAndDelete(id)
-        .then((income) =>{
-            res.status(200).json({message: 'Income Deleted'})
-        })
-        .catch((err) =>{
-            res.status(500).json({message: 'Server Error'})
-        })
+    const userId = req.user._id;  // Get the user ID from authenticated request
+
+    try {
+        // Find income that belongs to the specific user
+        const income = await IncomeSchema.findOne({ _id: id, user: userId });
+        
+        if (!income) {
+            return res.status(404).json({message: 'Income not found or unauthorized'});
+        }
+
+        await income.remove();
+        res.status(200).json({message: 'Income Deleted'})
+    } catch (err) {
+        res.status(500).json({message: 'Server Error'})
+    }
 }

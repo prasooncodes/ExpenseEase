@@ -1,15 +1,16 @@
 const ExpenseSchema = require("../models/ExpenseModel")
 
-
 exports.addExpense = async (req, res) => {
-    const {title, amount, category, description, date}  = req.body
+    const {title, amount, category, description, date} = req.body
+    const userId = req.user._id  // Get the user ID from authenticated request
 
-    const income = ExpenseSchema({
+    const expense = ExpenseSchema({
         title,
         amount,
         category,
         description,
-        date
+        date,
+        user: userId  // Associate the expense with the user
     })
 
     try {
@@ -20,19 +21,21 @@ exports.addExpense = async (req, res) => {
         if(amount <= 0 || !amount === 'number'){
             return res.status(400).json({message: 'Amount must be a positive number!'})
         }
-        await income.save()
+        await expense.save()
         res.status(200).json({message: 'Expense Added'})
     } catch (error) {
         res.status(500).json({message: 'Server Error'})
     }
 
-    console.log(income)
+    console.log(expense)
 }
 
 exports.getExpense = async (req, res) =>{
     try {
-        const incomes = await ExpenseSchema.find().sort({createdAt: -1})
-        res.status(200).json(incomes)
+        const userId = req.user._id  // Get the user ID from authenticated request
+        // Only fetch expenses for the specific user
+        const expenses = await ExpenseSchema.find({ user: userId }).sort({createdAt: -1})
+        res.status(200).json(expenses)
     } catch (error) {
         res.status(500).json({message: 'Server Error'})
     }
@@ -40,11 +43,19 @@ exports.getExpense = async (req, res) =>{
 
 exports.deleteExpense = async (req, res) =>{
     const {id} = req.params;
-    ExpenseSchema.findByIdAndDelete(id)
-        .then((income) =>{
-            res.status(200).json({message: 'Expense Deleted'})
-        })
-        .catch((err) =>{
-            res.status(500).json({message: 'Server Error'})
-        })
+    const userId = req.user._id;  // Get the user ID from authenticated request
+
+    try {
+        // Find expense that belongs to the specific user
+        const expense = await ExpenseSchema.findOne({ _id: id, user: userId });
+        
+        if (!expense) {
+            return res.status(404).json({message: 'Expense not found or unauthorized'});
+        }
+
+        await expense.remove();
+        res.status(200).json({message: 'Expense Deleted'})
+    } catch (err) {
+        res.status(500).json({message: 'Server Error'})
+    }
 }
