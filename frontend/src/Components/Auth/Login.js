@@ -26,7 +26,7 @@ function Login() {
     return (
         <LoginStyled>
             <div className="auth-container">
-                <h2>Welcome Back!</h2>
+                <h2>Welcome to ExpenseEase</h2>
                 {error && <div className="error-message">{error}</div>}
                 <form onSubmit={handleSubmit}>
                     <div className="input-control">

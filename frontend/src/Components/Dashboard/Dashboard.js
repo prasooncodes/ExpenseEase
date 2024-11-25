@@ -39,7 +39,7 @@ function Dashboard() {
     return (
         <DashboardStyled>
             <InnerLayout>
-                <h1>Financial Dashboard</h1>
+                <h1>ExpenseEase Financial Dashboard</h1>
                 <div className="stats-con">
                     <div className="chart-con">
                         <Chart />
